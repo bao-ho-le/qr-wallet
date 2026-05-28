@@ -2,10 +2,13 @@ package com.example.qr_wallet.qr;
 
 import com.example.qr_wallet.qr.dto.request.UpdateQRRequest;
 import com.example.qr_wallet.qr.dto.response.QRDetailRes;
+import com.example.qr_wallet.qr.dto.response.QRScanRes;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("${api.prefix}/qr")
@@ -37,6 +40,15 @@ public class QRController {
         QRDetailRes updatedQR = service.updateQRById(id, request);
 
         return ResponseEntity.ok(updatedQR);
+    }
+
+    @PostMapping( value ="/scan", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<QRScanRes> uploadAndScanQR(
+            @RequestParam("file") MultipartFile file) {
+
+        QRScanRes result = service.uploadAndScanQR(file);
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 

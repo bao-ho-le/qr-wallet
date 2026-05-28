@@ -21,6 +21,15 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+    @ExceptionHandler(QRScanException.class)
+    public ResponseEntity<String> handleQRScanException(
+            QRScanException ex
+    ){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleInvalidId(
             IllegalArgumentException ex
@@ -48,4 +57,3 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 }
-

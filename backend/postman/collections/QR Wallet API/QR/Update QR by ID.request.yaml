@@ -1,0 +1,19 @@
+$kind: http-request
+name: Update QR by ID
+method: PUT
+url: '{{baseUrl}}{{apiPrefix}}/qr/{{qrId}}'
+description: 'Update a QR code entry by its ID. Required fields: name, bank, accountNo. Optional: qrData, note.'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "My QR Code",
+      "bank": "Vietcombank",
+      "accountNo": "1234567890",
+      "qrData": "00020101021238...",
+      "note": "Personal account"
+    }
