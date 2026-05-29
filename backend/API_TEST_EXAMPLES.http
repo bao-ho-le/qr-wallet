@@ -1,0 +1,131 @@
+@description Test QR Scan API - Upload Image
+
+### Test Scan QR with PNG Image
+POST http://localhost:8080/api/v1/qr/scan
+Content-Type: multipart/form-data; boundary=----FormBoundary7MA4YWxkTrZu0gW
+
+------FormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="qr_code.png"
+Content-Type: image/png
+
+< ./qr_code.png
+------FormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### Test Scan QR with JPEG Image
+POST http://localhost:8080/api/v1/qr/scan
+Content-Type: multipart/form-data; boundary=----FormBoundary7MA4YWxkTrZu0gW
+
+------FormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="qr_code.jpg"
+Content-Type: image/jpeg
+
+< ./qr_code.jpg
+------FormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### Test Scan QR with JPEG Image (jpg extension)
+POST http://localhost:8080/api/v1/qr/scan
+Content-Type: multipart/form-data; boundary=----FormBoundary7MA4YWxkTrZu0gW
+
+------FormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="qr_code.jpeg"
+Content-Type: image/jpeg
+
+< ./qr_code.jpeg
+------FormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### Test Empty File (Should Return 400)
+POST http://localhost:8080/api/v1/qr/scan
+Content-Type: multipart/form-data; boundary=----FormBoundary7MA4YWxkTrZu0gW
+
+------FormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="empty.png"
+Content-Type: image/png
+
+------FormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### Test Invalid File Format (Should Return 400)
+POST http://localhost:8080/api/v1/qr/scan
+Content-Type: multipart/form-data; boundary=----FormBoundary7MA4YWxkTrZu0gW
+
+------FormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="document.txt"
+Content-Type: text/plain
+
+This is a text file, not an image
+------FormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### Success Response Example:
+# Status: 200 OK
+# Body:
+{
+  "qrData": "https://example.com/payment?id=12345&amount=500000"
+}
+
+###
+
+### Error Response Example - Invalid Format:
+# Status: 400 Bad Request
+# Body:
+Invalid file format. Only PNG, JPG, JPEG are allowed
+
+###
+
+### Error Response Example - Empty File:
+# Status: 400 Bad Request
+# Body:
+File is required and cannot be empty
+
+###
+
+### Error Response Example - No QR Code:
+# Status: 400 Bad Request
+# Body:
+No QR code found in the image
+
+###
+
+### Using cURL for Testing:
+
+# Test with PNG:
+curl -X POST http://localhost:8080/api/v1/qr/scan \
+  -F "file=@qr_code.png"
+
+# Test with JPG:
+curl -X POST http://localhost:8080/api/v1/qr/scan \
+  -F "file=@qr_code.jpg"
+
+# Expected successful response:
+# {"qrData":"decoded_qr_string_here"}
+
+###
+
+### Using Postman (GUI):
+
+1. Open Postman
+2. Create New Request: POST
+3. URL: http://localhost:8080/api/v1/qr/scan
+4. Go to "Body" tab
+5. Select "form-data"
+6. Add key: "file" (type: File)
+7. Choose PNG/JPG/JPEG image
+8. Click Send
+9. Should get response with decoded QR data
+
+###
+
+### Headers Automatically Set:
+# - Content-Type: multipart/form-data (auto by multipart)
+# - No authentication required (uses Spring default security)
+
+###
+
