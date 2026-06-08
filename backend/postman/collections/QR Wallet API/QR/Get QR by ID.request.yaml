@@ -1,0 +1,6 @@
+$kind: http-request
+name: Get QR by ID
+method: GET
+url: '{{baseUrl}}{{apiPrefix}}/qr/{{qrId}}'
+description: 'Retrieve a QR code entry by its ID. Returns id, name, bank, accountNo, qrData, note, createdAt, updatedAt.'
+order: 1000

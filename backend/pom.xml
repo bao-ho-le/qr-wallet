@@ -77,7 +77,25 @@
 			<scope>test</scope>
 		</dependency>
 
-	</dependencies>
+	<!-- ZXing - QR Code decoding -->
+	<dependency>
+		<groupId>com.google.zxing</groupId>
+		<artifactId>core</artifactId>
+		<version>3.5.3</version>
+	</dependency>
+	<dependency>
+		<groupId>com.google.zxing</groupId>
+		<artifactId>javase</artifactId>
+		<version>3.5.3</version>
+	</dependency>
+
+	<!-- Apache Commons Lang -->
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-lang3</artifactId>
+	</dependency>
+
+</dependencies>
 
 	<build>
 		<plugins>

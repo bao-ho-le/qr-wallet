@@ -1,0 +1,5 @@
+$kind: http-request
+name: Delete QR by ID
+method: DELETE
+url: '{{baseUrl}}{{apiPrefix}}/qr/{{qrId}}'
+order: 3000

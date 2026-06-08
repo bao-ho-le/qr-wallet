@@ -7,30 +7,23 @@ export default function Home() {
         <p className="eyebrow">QR Wallet Demo</p>
         <h1>QR Wallet Management System</h1>
         <p className="hero-copy">
-          A small Spring Boot and Next.js project for viewing, updating, and
-          deleting QR records through a simple, student-friendly interface.
+          Upload a VietQR image, scan it into structured data, and manage saved
+          QR records through a simple, student-friendly interface.
         </p>
       </section>
 
       <section className="nav-grid">
-        <Link className="nav-card" href="/qr/get">
-          <span className="nav-title">Get QR Detail</span>
+        <Link className="nav-card" href="/qr/upload">
+          <span className="nav-title">Upload QR</span>
           <span className="nav-text">
-            Search a QR record by ID and view full details.
+            Upload an image, scan VietQR data, and save the record after review.
           </span>
         </Link>
 
-        <Link className="nav-card" href="/qr/update">
-          <span className="nav-title">Update QR</span>
+        <Link className="nav-card" href="/qr/list">
+          <span className="nav-title">QR List</span>
           <span className="nav-text">
-            Edit QR information and submit updates to the backend.
-          </span>
-        </Link>
-
-        <Link className="nav-card" href="/qr/delete">
-          <span className="nav-title">Delete QR</span>
-          <span className="nav-text">
-            Remove a QR record by ID with a single request.
+            Browse saved QR records, open detail, edit, or delete entries.
           </span>
         </Link>
       </section>

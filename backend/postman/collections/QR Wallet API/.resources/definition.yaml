@@ -1,0 +1,20 @@
+$kind: collection
+name: QR Wallet API
+variables:
+  - key: baseUrl
+    value: 'http://localhost:8080'
+  - key: apiPrefix
+    value: '/api/v1'
+  - key: basicUsername
+    value: 'root'
+  - key: basicPassword
+    value: '123'
+  - key: qrId
+    value: '1'
+auth:
+  type: basic
+  credentials:
+    - key: username
+      value: '{{basicUsername}}'
+    - key: password
+      value: '{{basicPassword}}'
