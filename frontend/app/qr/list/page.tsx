@@ -52,10 +52,10 @@ export default function QRListPage() {
 
       <section className="feature-card stack">
         <div className="actions">
-          <button onClick={loadList} disabled={loading}>
+          <button onClick={loadList} disabled={loading} className="button-base ">
             {loading ? "Refreshing..." : "Refresh"}
           </button>
-          <Link className="secondary-link" href="/qr/upload">
+          <Link className="button-base secondary-link" href="/qr/upload">
             Upload new QR
           </Link>
         </div>
@@ -83,7 +83,7 @@ export default function QRListPage() {
               <div className="record-footer">
                 <span className="meta">Updated at: {item.updatedAt || "-"}</span>
                 <div className="actions">
-                  <Link className="secondary-link" href={`/qr/get?id=${item.id}`} prefetch={false}>
+                  <Link className="button-base secondary-link" href={`/qr/get?id=${item.id}`} prefetch={false}>
                     Details
                   </Link>
                 </div>

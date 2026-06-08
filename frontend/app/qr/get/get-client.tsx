@@ -83,7 +83,7 @@ export default function GetQRClient() {
 
       <section className="feature-card stack">
         <div className="actions">
-          <Link className="secondary-link" href="/qr/list">
+          <Link className="button-base secondary-link" href="/qr/list">
             Back to list
           </Link>
         </div>
@@ -95,10 +95,10 @@ export default function GetQRClient() {
           <>
             <QRDetailCard detail={result} />
             <div className="actions detail-actions">
-              <Link className="secondary-link" href={`/qr/update?id=${result.id}`} prefetch={false}>
+              <Link className="button-base secondary-link" href={`/qr/update?id=${result.id}`} prefetch={false}>
                 Edit
               </Link>
-              <Link className="secondary-link danger-link" href={`/qr/delete?id=${result.id}`} prefetch={false}>
+              <Link className="button-base secondary-link danger-link" href={`/qr/delete?id=${result.id}`} prefetch={false}>
                 Delete
               </Link>
             </div>

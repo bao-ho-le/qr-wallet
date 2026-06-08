@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="landing-shell">
+    <main className="landing-shell flex flex-col min-h-screen items-center">
       <section className="hero">
         <p className="eyebrow">QR Wallet Demo</p>
         <h1>QR Wallet Management System</h1>
@@ -12,7 +12,7 @@ export default function Home() {
         </p>
       </section>
 
-      <section className="nav-grid">
+      <section className="nav-grid flex-grow flex items-center justify-center">
         <Link className="nav-card" href="/qr/upload">
           <span className="nav-title">Upload QR</span>
           <span className="nav-text">

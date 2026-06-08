@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+
 import { useSearchParams } from "next/navigation";
 import { QRDetailCard } from "@/components/qr-detail";
 import {
@@ -143,25 +144,10 @@ export default function UpdateQRClient() {
       </div>
 
       <section className="feature-card stack">
-        <div className="field-group">
-          <div className="field">
-            <label htmlFor="qrId">QR ID</label>
-            <input
-              id="qrId"
-              type="number"
-              min="1"
-              value={qrId}
-              onChange={(event) => setQrId(event.target.value)}
-              placeholder="Enter QR id"
-            />
-          </div>
-        </div>
+        
 
-        <div className="actions">
-          <button onClick={() => void loadRecord()} disabled={!qrId.trim() || loadingRecord}>
-            {loadingRecord ? "Loading..." : "Load data"}
-          </button>
-          <Link className="secondary-link" href="/qr/list">
+        <div className="actions ">
+          <Link className="button-base secondary-link" href="/qr/list">
             Back to list
           </Link>
         </div>
@@ -245,7 +231,7 @@ export default function UpdateQRClient() {
         </div>
 
         <div className="actions">
-          <button onClick={() => void handleUpdate()} disabled={!qrId.trim() || loading}>
+          <button onClick={() => void handleUpdate()} disabled={!qrId.trim() || loading} className="button-base ">
             {loading ? "Updating..." : "Update"}
           </button>
         </div>

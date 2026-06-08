@@ -1,4 +1,5 @@
 import type { QRDetail } from "@/lib/qr-api";
+import QRCode from "react-qr-code";
 
 export function QRDetailCard({
   detail,
@@ -22,12 +23,27 @@ export function QRDetailCard({
           <span className="detail-label">Account No</span>
           <span>{detail.accountNo}</span>
         </div>
-        {showQrData ? (
-          <div className="detail-row">
-            <span className="detail-label">QR Data</span>
-            <span>{detail.qrData ?? "-"}</span>
-          </div>
-        ) : null}
+     {showQrData ? (
+  <div className="detail-row">
+    <span className="detail-label">QR Code</span>
+
+    <div className="stack">
+      {detail.qrData ? (
+        <QRCode
+          value={detail.qrData}
+          size={180}
+        />
+      ) : (
+        "-"
+      )}
+
+      <details>
+        <summary>Raw QR Data</summary>
+        <pre>{detail.qrData}</pre>
+      </details>
+    </div>
+  </div>
+) : null}
         <div className="detail-row">
           <span className="detail-label">Note</span>
           <span>{detail.note ?? "-"}</span>
