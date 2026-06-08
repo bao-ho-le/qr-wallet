@@ -56,4 +56,15 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errors);
     }
+
+    @ExceptionHandler(QRAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleQRAlreadyExists(QRAlreadyExistsException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of(
+                        "message",
+                        ex.getMessage()
+                ));
+    }
 }

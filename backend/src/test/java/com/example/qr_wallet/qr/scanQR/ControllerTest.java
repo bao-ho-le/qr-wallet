@@ -40,7 +40,7 @@ public class ControllerTest {
                 "fake png data".getBytes()
         );
 
-        QRScanRes expectedResponse = new QRScanRes("https://example.com/payment?id=123");
+        QRScanRes expectedResponse = new QRScanRes("00020101021138540010A00000072701240006970422011008194048330208QRIBFTTA53037045802VN63045fef","970422","MB Bank","697042201100819404833","accountName",0L,"",false);
         when(qrService.uploadAndScanQR(mockFile)).thenReturn(expectedResponse);
 
         mockMvc.perform(
@@ -49,7 +49,7 @@ public class ControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA)
         )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.qrData").value("https://example.com/payment?id=123"));
+                .andExpect(jsonPath("$.rawData").value("00020101021138540010A00000072701240006970422011008194048330208QRIBFTTA53037045802VN63045fef"));
 
         verify(qrService, times(1)).uploadAndScanQR(any());
     }

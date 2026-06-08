@@ -1,4 +1,3 @@
-
 package com.example.qr_wallet.qr.util;
 
 import com.example.qr_wallet.qr.exception.QRScanException;
@@ -8,322 +7,261 @@ import java.util.Map;
 
 public class VietQRParser {
 
-    private static final Map<String, String> BANK_CODE_MAP = new HashMap<>();
+	private static final Map<String, String> BANK_CODE_MAP = new HashMap<>();
 
-    static {
+	static {
 
-        BANK_CODE_MAP.put("970422", "MB Bank");
-        BANK_CODE_MAP.put("970406", "Agribank");
-        BANK_CODE_MAP.put("970407", "Vietcombank");
-        BANK_CODE_MAP.put("970408", "Incombank");
-        BANK_CODE_MAP.put("970410", "BIDV");
-        BANK_CODE_MAP.put("970414", "VietinBank");
-        BANK_CODE_MAP.put("970415", "VPBank");
-        BANK_CODE_MAP.put("970418", "ACB");
-        BANK_CODE_MAP.put("970423", "TPBank");
-        BANK_CODE_MAP.put("970436", "Vietcombank");
-    }
+		BANK_CODE_MAP.put("970422", "MB Bank");
+		BANK_CODE_MAP.put("970406", "Agribank");
+		BANK_CODE_MAP.put("970407", "Vietcombank");
+		BANK_CODE_MAP.put("970408", "Incombank");
+		BANK_CODE_MAP.put("970410", "BIDV");
+		BANK_CODE_MAP.put("970414", "VietinBank");
+		BANK_CODE_MAP.put("970415", "VPBank");
+		BANK_CODE_MAP.put("970418", "ACB");
+		BANK_CODE_MAP.put("970423", "TPBank");
+		BANK_CODE_MAP.put("970436", "Vietcombank");
+	}
 
-    private VietQRParser() {
-    }
+	private VietQRParser() {
+	}
 
-    public static VietQRData parse(String rawQRData) {
+	public static VietQRData parse(String rawQRData) {
 
-        if (rawQRData == null || rawQRData.isBlank()) {
-            throw new QRScanException("QR data is empty");
-        }
+		if (rawQRData == null || rawQRData.isBlank()) {
+			throw new QRScanException("QR data is empty");
+		}
 
-        try {
+		try {
 
-            Map<String, String> rootFields =
-                    parseTLV(rawQRData);
+			Map<String, String> rootFields = parseTLV(rawQRData);
 
-            String bankCode =
-                    extractBankCode(rawQRData);
+			// Extract account info (bank code + account number) from
+			// Merchant Account Information (tag 38 or fallback to 26)
+			AccountInfo accountInfo = extractAccountInfo(rootFields);
 
-            String bankName =
-                    getBankName(bankCode);
+			String bankCode = accountInfo.bankCode();
+			String bankName = getBankName(bankCode);
+			String accountNumber = accountInfo.accountNumber();
 
-            String accountNumber =
-                    extractAccountNumber(rootFields);
+			String accountName = extractAccountName(rootFields);
 
-            String accountName =
-                    extractAccountName(rootFields);
+			Long amount = extractAmount(rootFields);
 
-            Long amount =
-                    extractAmount(rootFields);
+			String description = extractDescription(rootFields);
 
-            String description =
-                    extractDescription(rootFields);
+			return new VietQRData(
+					rawQRData,
+					bankCode,
+					bankName,
+					accountNumber,
+					accountName,
+					amount,
+					description
+			);
 
-            return new VietQRData(
-                    rawQRData,
-                    bankCode,
-                    bankName,
-                    accountNumber,
-                    accountName,
-                    amount,
-                    description
-            );
+		} catch (Exception e) {
 
-        } catch (Exception e) {
+			throw new QRScanException(
+					"Failed to parse VietQR",
+					e
+			);
+		}
+	}
 
-            throw new QRScanException(
-                    "Failed to parse VietQR",
-                    e
-            );
-        }
-    }
+	/**
+	 * Parse TLV format:
+	 * Tag(2) + Length(2) + Value(n)
+	 */
+	private static Map<String, String> parseTLV(String data) {
 
-    /**
-     * Parse TLV format:
-     * Tag(2) + Length(2) + Value(n)
-     */
-    private static Map<String, String> parseTLV(String data) {
+		Map<String, String> fields = new HashMap<>();
 
-        Map<String, String> fields =
-                new HashMap<>();
+		int pos = 0;
 
-        int pos = 0;
+		while (pos + 4 <= data.length()) {
 
-        while (pos + 4 <= data.length()) {
+			String tag = data.substring(pos, pos + 2);
 
-            String tag =
-                    data.substring(pos, pos + 2);
+			String lengthStr = data.substring(pos + 2, pos + 4);
 
-            String lengthStr =
-                    data.substring(pos + 2, pos + 4);
+			int length;
 
-            int length;
+			try {
 
-            try {
+				length = Integer.parseInt(lengthStr);
 
-                length =
-                        Integer.parseInt(lengthStr);
+			} catch (NumberFormatException e) {
+				break;
+			}
 
-            } catch (NumberFormatException e) {
-                break;
-            }
+			pos += 4;
 
-            pos += 4;
+			if (pos + length > data.length()) {
+				break;
+			}
 
-            if (pos + length > data.length()) {
-                break;
-            }
+			String value = data.substring(pos, pos + length);
 
-            String value =
-                    data.substring(pos, pos + length);
+			fields.put(tag, value);
 
-            fields.put(tag, value);
+			pos += length;
+		}
 
-            pos += length;
-        }
+		return fields;
+	}
+
+	private record AccountInfo(
+			String bankCode,
+			String accountNumber
+	) {}
+
+	/**
+	 * Extract both bank code (BIN) and account number from Merchant Account Info (tag 38 / 26).
+	 */
+	private static AccountInfo extractAccountInfo(Map<String, String> fields) {
+
+		String merchantInfo = fields.get("38");
 
-        return fields;
-    }
+		if (merchantInfo == null) {
+			merchantInfo = fields.get("26");
+		}
 
-    /**
-     * Practical approach:
-     * find known bank BIN directly
-     * from raw QR string
-     */
-    private static String extractBankCode(
-            String rawQRData
-    ) {
+		if (merchantInfo == null) {
+			return new AccountInfo("", "");
+		}
 
-        for (String bankBin : BANK_CODE_MAP.keySet()) {
+		try {
+			Map<String, String> nested = parseTLV(merchantInfo);
+			String accountData = nested.get("01");
 
-            if (rawQRData.contains(bankBin)) {
-                return bankBin;
-            }
-        }
+			if (accountData == null || accountData.isBlank()) {
+				return new AccountInfo("", "");
+			}
 
-        return "";
-    }
+			// Try to find bank BIN inside accountData
+			for (String bankBin : BANK_CODE_MAP.keySet()) {
+				int idx = accountData.indexOf(bankBin);
+				if (idx >= 0) {
+					// Extract remainder after BIN
+					String remainder = accountData.substring(idx + bankBin.length());
+					// Remove leading zeros
+					remainder = remainder.replaceFirst("^0+", "");
 
-    /**
-     * Practical heuristic extraction
-     */
-    private static String extractAccountNumber(
-            Map<String, String> fields
-    ) {
+					// Heuristic: if remainder is longer than 10 digits, take last 10 digits
+					String accountNumber = remainder;
+					if (accountNumber.length() > 10) {
+						accountNumber = accountNumber.substring(accountNumber.length() - 10);
+					}
 
-        String merchantInfo = fields.get("38");
+					return new AccountInfo(bankBin, accountNumber);
+				}
+			}
 
-        if (merchantInfo == null) {
-            merchantInfo = fields.get("26");
-        }
+			// If no BIN found, fallback: remove leading zeros and, if long, take last 10 digits
+			String cleaned = accountData.replaceFirst("^0+", "");
+			if (cleaned.length() > 10) {
+				cleaned = cleaned.substring(cleaned.length() - 10);
+			}
 
-        if (merchantInfo == null) {
-            return "";
-        }
+			return new AccountInfo("", cleaned);
 
-        try {
+		} catch (Exception e) {
+			return new AccountInfo("", "");
+		}
+	}
 
-            Map<String, String> nested =
-                    parseTLV(merchantInfo);
+	/**
+	 * Tag 54 = amount
+	 */
+	private static Long extractAmount(Map<String, String> fields) {
 
-            String accountData =
-                    nested.get("01");
+		String amount = fields.get("54");
 
-            if (accountData == null ||
-                    accountData.length() < 10) {
+		if (amount == null || amount.isBlank()) {
+			return 0L;
+		}
 
-                return "";
-            }
+		try {
+			return Long.parseLong(amount);
+		} catch (Exception e) {
+			return 0L;
+		}
+	}
 
-            /*
-             * Remove leading zeros
-             * sometimes QR contains:
-             * 000697043601101027540413
-             */
+	/**
+	 * Tag 62 = additional data
+	 */
+	private static String extractDescription(Map<String, String> fields) {
 
-            accountData =
-                    accountData.replaceFirst("^0+", "");
+		String additionalData = fields.get("62");
 
-            /*
-             * Remove bank BIN if exists
-             */
+		if (additionalData == null) {
+			return "";
+		}
 
-            for (String bankBin : BANK_CODE_MAP.keySet()) {
+		try {
+			Map<String, String> nested = parseTLV(additionalData);
 
-                if (accountData.startsWith(bankBin)) {
+			String description = nested.get("08");
 
-                    return accountData.substring(
-                            bankBin.length()
-                    );
-                }
-            }
+			return description != null ? description : "";
 
-            return accountData;
+		} catch (Exception e) {
+			return "";
+		}
+	}
 
-        } catch (Exception e) {
+	/**
+	 * Tag 59 = beneficiary name
+	 */
+	private static String extractAccountName(Map<String, String> fields) {
 
-            return "";
-        }
-    }
+		String name = fields.get("59");
 
-    /**
-     * Tag 54 = amount
-     */
-    private static Long extractAmount(
-            Map<String, String> fields
-    ) {
+		return name != null ? name : "";
+	}
 
-        String amount =
-                fields.get("54");
+	private static String getBankName(String bankCode) {
+		return BANK_CODE_MAP.getOrDefault(bankCode, "Unknown Bank");
+	}
 
-        if (amount == null ||
-                amount.isBlank()) {
+	public static class VietQRData {
 
-            return 0L;
-        }
+		public final String rawData;
 
-        try {
+		public final String bankCode;
 
-            return Long.parseLong(amount);
+		public final String bankName;
 
-        } catch (Exception e) {
+		public final String accountNumber;
 
-            return 0L;
-        }
-    }
+		public final String accountName;
 
-    /**
-     * Tag 62 = additional data
-     */
-    private static String extractDescription(
-            Map<String, String> fields
-    ) {
+		public final Long amount;
 
-        String additionalData =
-                fields.get("62");
+		public final String description;
 
-        if (additionalData == null) {
-            return "";
-        }
+		public VietQRData(
+				String rawData,
+				String bankCode,
+				String bankName,
+				String accountNumber,
+				String accountName,
+				Long amount,
+				String description
+		) {
 
-        try {
+			this.rawData = rawData;
+			this.bankCode = bankCode;
+			this.bankName = bankName;
+			this.accountNumber = accountNumber;
+			this.accountName = accountName;
+			this.amount = amount;
+			this.description = description;
+		}
+	}
 
-            Map<String, String> nested =
-                    parseTLV(additionalData);
-
-            /*
-             * Tag 08 often contains
-             * transfer content
-             */
-
-            String description =
-                    nested.get("08");
-
-            return description != null
-                    ? description
-                    : "";
-
-        } catch (Exception e) {
-
-            return "";
-        }
-    }
-
-    /**
-     * Tag 59 = beneficiary name
-     */
-    private static String extractAccountName(
-            Map<String, String> fields
-    ) {
-
-        String name =
-                fields.get("59");
-
-        return name != null
-                ? name
-                : "";
-    }
-
-    private static String getBankName(
-            String bankCode
-    ) {
-
-        return BANK_CODE_MAP.getOrDefault(
-                bankCode,
-                "Unknown Bank"
-        );
-    }
-
-    public static class VietQRData {
-
-        public final String rawData;
-
-        public final String bankCode;
-
-        public final String bankName;
-
-        public final String accountNumber;
-
-        public final String accountName;
-
-        public final Long amount;
-
-        public final String description;
-
-        public VietQRData(
-                String rawData,
-                String bankCode,
-                String bankName,
-                String accountNumber,
-                String accountName,
-                Long amount,
-                String description
-        ) {
-
-            this.rawData = rawData;
-            this.bankCode = bankCode;
-            this.bankName = bankName;
-            this.accountNumber = accountNumber;
-            this.accountName = accountName;
-            this.amount = amount;
-            this.description = description;
-        }
-    }
 }
+
+

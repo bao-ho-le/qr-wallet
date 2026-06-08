@@ -7,6 +7,7 @@ public record QRScanRes(
         String accountNumber,
         String accountName,
         Long amount,
-        String description
+        String description,
+        boolean requireAccountName
 ) {
 }
