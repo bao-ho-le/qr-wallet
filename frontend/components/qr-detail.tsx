@@ -23,27 +23,19 @@ export function QRDetailCard({
           <span className="detail-label">Account No</span>
           <span>{detail.accountNo}</span>
         </div>
-     {showQrData ? (
-  <div className="detail-row">
-    <span className="detail-label">QR Code</span>
+        {showQrData ? (
+          <div className="detail-row">
+            <span className="detail-label">QR Code</span>
 
-    <div className="stack">
-      {detail.qrData ? (
-        <QRCode
-          value={detail.qrData}
-          size={180}
-        />
-      ) : (
-        "-"
-      )}
-
-      <details>
-        <summary>Raw QR Data</summary>
-        <pre>{detail.qrData}</pre>
-      </details>
-    </div>
-  </div>
-) : null}
+            <div className="stack">
+              {detail.qrData ? (
+                <QRCode value={detail.qrData} size={180} />
+              ) : (
+                "-"
+              )}
+            </div>
+          </div>
+        ) : null}
         <div className="detail-row">
           <span className="detail-label">Note</span>
           <span>{detail.note ?? "-"}</span>
