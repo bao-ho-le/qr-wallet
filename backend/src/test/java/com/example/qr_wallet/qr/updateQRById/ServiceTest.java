@@ -33,9 +33,6 @@ public class ServiceTest {
 
     private final UpdateQRRequest validRequest = new UpdateQRRequest(
             "Le Vo",
-            "VCB",
-            "123456",
-            "qr-data",
             "note"
     );
 
@@ -83,9 +80,6 @@ public class ServiceTest {
         UpdateQRRequest request =
                 new UpdateQRRequest(
                         "New Name",
-                        "Momo",
-                        "999",
-                        "qr-data",
                         "new note"
                 );
 
@@ -99,10 +93,9 @@ public class ServiceTest {
                 service.updateQRById(1L, request);
 
         assertEquals("New Name", result.name());
-        assertEquals("Momo", result.bank());
-        assertEquals("999", result.accountNo());
+        assertEquals("VCB", result.bank());
+        assertEquals("111", result.accountNo());
         assertEquals("new note", result.note());
-        assertEquals("qr-data", result.qrData());
 
         verify(repo).save(qr);
     }

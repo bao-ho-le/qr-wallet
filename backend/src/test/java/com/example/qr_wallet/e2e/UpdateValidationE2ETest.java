@@ -47,9 +47,6 @@ class UpdateValidationE2ETest {
 
         UpdateQRRequest request = new UpdateQRRequest(
                 "",
-                "Updated Bank",
-                "222222222",
-                "updated-qr-data",
                 "updated note"
         );
 

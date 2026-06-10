@@ -5,6 +5,7 @@ import com.example.qr_wallet.qr.QRRepo;
 import com.example.qr_wallet.qr.dto.request.UpdateQRRequest;
 import com.example.qr_wallet.qr.dto.response.QRDetailRes;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +24,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
                         .WebEnvironment
                         .RANDOM_PORT
 )
-@Transactional
 class QRLifecycleE2ETest {
 
     @Autowired
@@ -37,13 +37,11 @@ class QRLifecycleE2ETest {
         QR savedQR = repo.saveAndFlush(QR.builder()
                 .name("Old Name")
                 .bank("Old Bank")
-                .accountNo("111111111")
+                .accountNo("1111111114")
                 .qrData("old-qr-data")
                 .note("old note")
                 .build());
 
-        TestTransaction.flagForCommit();
-        TestTransaction.end();
 
         ResponseEntity<QRDetailRes> getResponse = restTemplate.getForEntity(
                 "/api/v1/qr/{id}",
@@ -56,7 +54,7 @@ class QRLifecycleE2ETest {
         Assertions.assertEquals(savedQR.getId(), getResponse.getBody().id());
         Assertions.assertEquals("Old Name", getResponse.getBody().name());
         Assertions.assertEquals("Old Bank", getResponse.getBody().bank());
-        Assertions.assertEquals("111111111", getResponse.getBody().accountNo());
+        Assertions.assertEquals("1111111114", getResponse.getBody().accountNo());
         Assertions.assertEquals("old-qr-data", getResponse.getBody().qrData());
         Assertions.assertEquals("old note", getResponse.getBody().note());
         Assertions.assertNotNull(getResponse.getBody().createdAt());
@@ -64,9 +62,6 @@ class QRLifecycleE2ETest {
 
         UpdateQRRequest updateRequest = new UpdateQRRequest(
                 "Updated Name",
-                "Updated Bank",
-                "222222222",
-                "updated-qr-data",
                 "updated note"
         );
 
@@ -86,18 +81,18 @@ class QRLifecycleE2ETest {
         Assertions.assertNotNull(updateResponse.getBody());
         Assertions.assertEquals(savedQR.getId(), updateResponse.getBody().id());
         Assertions.assertEquals("Updated Name", updateResponse.getBody().name());
-        Assertions.assertEquals("Updated Bank", updateResponse.getBody().bank());
-        Assertions.assertEquals("222222222", updateResponse.getBody().accountNo());
-        Assertions.assertEquals("updated-qr-data", updateResponse.getBody().qrData());
+        Assertions.assertEquals("Old Bank", updateResponse.getBody().bank());
+        Assertions.assertEquals("1111111114", updateResponse.getBody().accountNo());
+        Assertions.assertEquals("old-qr-data", updateResponse.getBody().qrData());
         Assertions.assertEquals("updated note", updateResponse.getBody().note());
         Assertions.assertNotNull(updateResponse.getBody().createdAt());
         Assertions.assertNotNull(updateResponse.getBody().updatedAt());
 
         QR updatedQR = repo.findById(savedQR.getId()).orElseThrow();
         Assertions.assertEquals("Updated Name", updatedQR.getName());
-        Assertions.assertEquals("Updated Bank", updatedQR.getBank());
-        Assertions.assertEquals("222222222", updatedQR.getAccountNo());
-        Assertions.assertEquals("updated-qr-data", updatedQR.getQrData());
+        Assertions.assertEquals("Old Bank", updatedQR.getBank());
+        Assertions.assertEquals("1111111114", updatedQR.getAccountNo());
+        Assertions.assertEquals("old-qr-data", updatedQR.getQrData());
         Assertions.assertEquals("updated note", updatedQR.getNote());
         Assertions.assertNotNull(updatedQR.getCreatedAt());
         Assertions.assertNotNull(updatedQR.getUpdatedAt());
@@ -111,9 +106,9 @@ class QRLifecycleE2ETest {
         Assertions.assertEquals(200, updatedGetResponse.getStatusCode().value());
         Assertions.assertNotNull(updatedGetResponse.getBody());
         Assertions.assertEquals("Updated Name", updatedGetResponse.getBody().name());
-        Assertions.assertEquals("Updated Bank", updatedGetResponse.getBody().bank());
-        Assertions.assertEquals("222222222", updatedGetResponse.getBody().accountNo());
-        Assertions.assertEquals("updated-qr-data", updatedGetResponse.getBody().qrData());
+        Assertions.assertEquals("Old Bank", updatedGetResponse.getBody().bank());
+        Assertions.assertEquals("1111111114", updatedGetResponse.getBody().accountNo());
+        Assertions.assertEquals("old-qr-data", updatedGetResponse.getBody().qrData());
         Assertions.assertEquals("updated note", updatedGetResponse.getBody().note());
         Assertions.assertNotNull(updatedGetResponse.getBody().createdAt());
         Assertions.assertNotNull(updatedGetResponse.getBody().updatedAt());
@@ -138,5 +133,10 @@ class QRLifecycleE2ETest {
 
         Assertions.assertEquals(404, deletedGetResponse.getStatusCode().value());
         Assertions.assertEquals("QR not found", deletedGetResponse.getBody());
+    }
+
+    @BeforeEach
+    void clean() {
+        repo.deleteAll();
     }
 }

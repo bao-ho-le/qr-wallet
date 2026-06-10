@@ -50,9 +50,6 @@ class ControllerTest {
 
         UpdateQRRequest request = new UpdateQRRequest(
                 "Le Vo",
-                "Vietcombank",
-                "123456789",
-                "qr-data",
                 "personal note"
         );
 
@@ -98,9 +95,6 @@ class ControllerTest {
 
         UpdateQRRequest request = new UpdateQRRequest(
                 "Le Vo",
-                "Vietcombank",
-                "123456789",
-                "qr-data",
                 "note"
         );
 
@@ -123,9 +117,6 @@ class ControllerTest {
 
         UpdateQRRequest request = new UpdateQRRequest(
                 "Le Vo",
-                "Vietcombank",
-                "123456789",
-                "qr-data",
                 "note"
         );
 
@@ -148,9 +139,6 @@ class ControllerTest {
 
         UpdateQRRequest request = new UpdateQRRequest(
                 "Le Vo",
-                "Vietcombank",
-                "123456789",
-                "qr-data",
                 "note"
         );
 
@@ -171,9 +159,6 @@ class ControllerTest {
 
         UpdateQRRequest request = new UpdateQRRequest(
                 "",
-                "Vietcombank",
-                "123456789",
-                "qr-data",
                 "note"
         );
 
@@ -189,145 +174,118 @@ class ControllerTest {
     }
 
 
-    @Test
-    void updateQRById_whenBankIsBlank_shouldReturn400() throws Exception {
-
-        UpdateQRRequest request = new UpdateQRRequest(
-                "Le Vo",
-                "",
-                "123456789",
-                "qr-data",
-                "note"
-        );
-
-        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.bank").value("Bank is required"));
-
-        verify(service, never()).updateQRById(any(), any());
-    }
+//    @Test
+//    void updateQRById_whenBankIsBlank_shouldReturn400() throws Exception {
+//
+//        UpdateQRRequest request = new UpdateQRRequest(
+//                "Le Vo",
+//                ""
+//        );
+//
+//        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(request))
+//                )
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.bank").value("Bank is required"));
+//
+//        verify(service, never()).updateQRById(any(), any());
+//    }
 
 
-    @Test
-    void updateQRById_whenAccountNoIsBlank_shouldReturn400() throws Exception {
-
-        UpdateQRRequest request = new UpdateQRRequest(
-                "Le Vo",
-                "Vietcombank",
-                "",
-                "qr-data",
-                "note"
-        );
-
-        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.accountNo").value("Account number is required"));
-
-
-        verify(service, never()).updateQRById(any(), any());
-    }
-
-
-    @Test
-    void updateQRById_whenNameAndBankAreBlank_shouldReturn400() throws Exception {
-
-        UpdateQRRequest request = new UpdateQRRequest(
-                "",
-                "",
-                "123456789",
-                "qr-data",
-                "note"
-        );
-
-        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.name").value("Name is required"))
-                .andExpect(jsonPath("$.bank").value("Bank is required"));
+//    @Test
+//    void updateQRById_whenAccountNoIsBlank_shouldReturn400() throws Exception {
+//
+//        UpdateQRRequest request = new UpdateQRRequest(
+//                "Le Vo",
+//                "Vietcombank",
+//                "",
+//                "qr-data",
+//                "note"
+//        );
+//
+//        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(request))
+//                )
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.accountNo").value("Account number is required"));
+//
+//
+//        verify(service, never()).updateQRById(any(), any());
+//    }
 
 
-        verify(service, never()).updateQRById(any(), any());
-    }
+//    @Test
+//    void updateQRById_whenNameAndBankAreBlank_shouldReturn400() throws Exception {
+//
+//        UpdateQRRequest request = new UpdateQRRequest(
+//                "",
+//                "",
+//                "123456789",
+//                "qr-data",
+//                "note"
+//        );
+//
+//        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(request))
+//                )
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.name").value("Name is required"))
+//                .andExpect(jsonPath("$.bank").value("Bank is required"));
+//
+//
+//        verify(service, never()).updateQRById(any(), any());
+//    }
+//
+//
+//    @Test
+//    void updateQRById_whenNameAndAccountNoAreBlank_shouldReturn400() throws Exception {
+//
+//        UpdateQRRequest request = new UpdateQRRequest(
+//                "",
+//                "Vietcombank",
+//                "",
+//                "qr-data",
+//                "note"
+//        );
+//
+//        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(request))
+//                )
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.name").value("Name is required"))
+//                .andExpect(jsonPath("$.accountNo").value("Account number is required"));
+//
+//
+//        verify(service, never()).updateQRById(any(), any());
+//    }
+//
+//
+//    @Test
+//    void updateQRById_whenBankAndAccountNoAreBlank_shouldReturn400() throws Exception {
+//
+//        UpdateQRRequest request = new UpdateQRRequest(
+//                "Le Vo",
+//                "",
+//                "",
+//                "qr-data",
+//                "note"
+//        );
+//
+//        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(request))
+//                )
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.bank").value("Bank is required"))
+//                .andExpect(jsonPath("$.accountNo").value("Account number is required"));
+//
+//
+//        verify(service, never()).updateQRById(any(), any());
+//    }
 
-
-    @Test
-    void updateQRById_whenNameAndAccountNoAreBlank_shouldReturn400() throws Exception {
-
-        UpdateQRRequest request = new UpdateQRRequest(
-                "",
-                "Vietcombank",
-                "",
-                "qr-data",
-                "note"
-        );
-
-        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.name").value("Name is required"))
-                .andExpect(jsonPath("$.accountNo").value("Account number is required"));
-
-
-        verify(service, never()).updateQRById(any(), any());
-    }
-
-
-    @Test
-    void updateQRById_whenBankAndAccountNoAreBlank_shouldReturn400() throws Exception {
-
-        UpdateQRRequest request = new UpdateQRRequest(
-                "Le Vo",
-                "",
-                "",
-                "qr-data",
-                "note"
-        );
-
-        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.bank").value("Bank is required"))
-                .andExpect(jsonPath("$.accountNo").value("Account number is required"));
-
-
-        verify(service, never()).updateQRById(any(), any());
-    }
-
-
-    @Test
-    void updateQRById_whenAllRequiredFieldsAreBlank_shouldReturn400() throws Exception {
-
-        UpdateQRRequest request = new UpdateQRRequest(
-                "",
-                "",
-                "",
-                "qr-data",
-                "note"
-        );
-
-        mockMvc.perform(put("/api/v1/qr/{id}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.name").value("Name is required"))
-                .andExpect(jsonPath("$.bank").value("Bank is required"))
-                .andExpect(jsonPath("$.accountNo").value("Account number is required"));
-
-
-        verify(service, never()).updateQRById(any(), any());
-    }
 
 }

@@ -11,6 +11,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"bank", "account_no"}
+                )
+        }
+)
 public class QR {
 
     @Id
@@ -19,18 +26,19 @@ public class QR {
 
     private String name;
 
+    @Column(updatable = false)
     private String bank;
 
-    @Column(name = "account_no")
+    @Column(name = "account_no", updatable = false)
     private String accountNo;
 
     @Lob
-    @Column(name = "qr_data")
+    @Column(name = "qr_data", updatable = false)
     private String qrData;
 
     private String note;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")

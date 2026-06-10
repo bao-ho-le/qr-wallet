@@ -18,9 +18,6 @@ export default function UpdateQRClient() {
   const [qrId, setQrId] = useState("");
   const [form, setForm] = useState<UpdateQRRequest>({
     name: "",
-    bank: "",
-    accountNo: "",
-    qrData: "",
     note: "",
   });
   const [loading, setLoading] = useState(false);
@@ -57,9 +54,6 @@ export default function UpdateQRClient() {
       setResult(data);
       setForm({
         name: data.name ?? "",
-        bank: data.bank ?? "",
-        accountNo: data.accountNo ?? "",
-        qrData: data.qrData ?? "",
         note: data.note ?? "",
       });
     } catch {
@@ -88,18 +82,6 @@ export default function UpdateQRClient() {
 
     if (!form.name.trim()) {
       nextFieldErrors.name = "Name is required.";
-    }
-
-    if (!form.bank.trim()) {
-      nextFieldErrors.bank = "Bank is required.";
-    }
-
-    if (!form.accountNo.trim()) {
-      nextFieldErrors.accountNo = "Account number is required.";
-    }
-
-    if (!form.qrData.trim()) {
-      nextFieldErrors.qrData = "QR data is required.";
     }
 
     if (Object.keys(nextFieldErrors).length > 0) {
@@ -140,12 +122,12 @@ export default function UpdateQRClient() {
           Back to home
         </Link>
         <h1>Update QR</h1>
-        <p>Edit a QR record by ID and submit the updated data to the backend.</p>
+        <p>
+          Edit a QR record by ID and submit the updated data to the backend.
+        </p>
       </div>
 
       <section className="feature-card stack">
-        
-
         <div className="actions ">
           <Link className="button-base secondary-link" href="/qr/list">
             Back to list
@@ -166,54 +148,9 @@ export default function UpdateQRClient() {
               }
               placeholder="Enter name"
             />
-            {fieldErrors.name ? <div className="field-error">{fieldErrors.name}</div> : null}
-          </div>
-
-          <div className="field">
-            <label htmlFor="bank">Bank</label>
-            <input
-              id="bank"
-              value={form.bank}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, bank: event.target.value }))
-              }
-              placeholder="Enter bank"
-            />
-            {fieldErrors.bank ? <div className="field-error">{fieldErrors.bank}</div> : null}
-          </div>
-
-          <div className="field">
-            <label htmlFor="accountNo">Account No</label>
-            <input
-              id="accountNo"
-              value={form.accountNo}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  accountNo: event.target.value,
-                }))
-              }
-              placeholder="Enter account number"
-            />
-            {fieldErrors.accountNo ? (
-              <div className="field-error">{fieldErrors.accountNo}</div>
+            {fieldErrors.name ? (
+              <div className="field-error">{fieldErrors.name}</div>
             ) : null}
-          </div>
-
-          <div className="field">
-            <label htmlFor="qrData">QR Data</label>
-            <textarea
-              id="qrData"
-              value={form.qrData}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  qrData: event.target.value,
-                }))
-              }
-              placeholder="Enter QR data"
-            />
-            {fieldErrors.qrData ? <div className="field-error">{fieldErrors.qrData}</div> : null}
           </div>
 
           <div className="field">
@@ -226,12 +163,18 @@ export default function UpdateQRClient() {
               }
               placeholder="Enter note"
             />
-            {fieldErrors.note ? <div className="field-error">{fieldErrors.note}</div> : null}
+            {fieldErrors.note ? (
+              <div className="field-error">{fieldErrors.note}</div>
+            ) : null}
           </div>
         </div>
 
         <div className="actions">
-          <button onClick={() => void handleUpdate()} disabled={!qrId.trim() || loading} className="button-base ">
+          <button
+            onClick={() => void handleUpdate()}
+            disabled={!qrId.trim() || loading}
+            className="button-base "
+          >
             {loading ? "Updating..." : "Update"}
           </button>
         </div>
