@@ -25,9 +25,6 @@ export type QRScanResponse = {
 
 export type CreateQRRequest = {
   name: string;
-  bank: string;
-  accountNo: string;
-  qrData: string;
   note: string;
 };
 
@@ -40,7 +37,8 @@ export type ApiErrorDetails = {
   fieldErrors: ApiFieldErrors;
 };
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080/api/v1/qr";
+export const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080/api/v1/qr";
 
 function buildUrl(path = ""): string {
   return `${API_BASE}${path}`;
@@ -84,8 +82,18 @@ export function formatError(payload: unknown): string {
 
   return "Unexpected error";
 }
-
 function parseErrorPayload(payload: unknown, status: number): ApiErrorDetails {
+  // ưu tiên message trước
+  if (isRecord(payload) && typeof payload.message === "string") {
+    const fieldErrors = isFieldErrorMap(payload.errors) ? payload.errors : {};
+
+    return {
+      message: payload.message,
+      fieldErrors,
+    };
+  }
+
+  // validation errors
   if (isFieldErrorMap(payload)) {
     return {
       message: "Please fix the highlighted fields.",
@@ -93,14 +101,7 @@ function parseErrorPayload(payload: unknown, status: number): ApiErrorDetails {
     };
   }
 
-  if (isRecord(payload) && typeof payload.message === "string") {
-    const fieldErrors = isFieldErrorMap(payload.errors) ? payload.errors : {};
-    return {
-      message: payload.message,
-      fieldErrors,
-    };
-  }
-
+  // plain text response
   if (typeof payload === "string") {
     return {
       message: payload,
@@ -119,7 +120,9 @@ export async function readErrorResponse(response: Response): Promise<string> {
   return error.message;
 }
 
-export async function readApiError(response: Response): Promise<ApiErrorDetails> {
+export async function readApiError(
+  response: Response,
+): Promise<ApiErrorDetails> {
   const text = await response.text();
 
   if (!text) {

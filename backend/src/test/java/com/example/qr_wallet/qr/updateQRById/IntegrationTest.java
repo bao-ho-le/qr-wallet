@@ -37,19 +37,17 @@ class IntegrationTest {
 
     @Test
     void updateQRById_whenValidRequest_shouldUpdateSuccessfully() throws Exception {
+
         QR savedQR = repo.save(QR.builder()
                 .name("Old Name")
                 .bank("Old Bank")
-                .accountNo("111111111")
+                .accountNo("1111111112")
                 .qrData("old-qr-data")
                 .note("old note")
                 .build());
 
         UpdateQRRequest request = new UpdateQRRequest(
                 "Le Vo",
-                "Vietcombank",
-                "123456789",
-                "new-qr-data",
                 "updated note"
         );
 
@@ -59,30 +57,24 @@ class IntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedQR.getId()))
                 .andExpect(jsonPath("$.name").value("Le Vo"))
-                .andExpect(jsonPath("$.bank").value("Vietcombank"))
-                .andExpect(jsonPath("$.accountNo").value("123456789"))
-                .andExpect(jsonPath("$.qrData").value("new-qr-data"))
-                .andExpect(jsonPath("$.note").value("updated note"))
-                .andExpect(jsonPath("$.createdAt").exists())
-                .andExpect(jsonPath("$.updatedAt").exists());
+                .andExpect(jsonPath("$.bank").value("Old Bank"))
+                .andExpect(jsonPath("$.accountNo").value("1111111112"))
+                .andExpect(jsonPath("$.qrData").value("old-qr-data"))
+                .andExpect(jsonPath("$.note").value("updated note"));
 
         QR updatedQR = repo.findById(savedQR.getId()).orElseThrow();
+
         Assertions.assertEquals("Le Vo", updatedQR.getName());
-        Assertions.assertEquals("Vietcombank", updatedQR.getBank());
-        Assertions.assertEquals("123456789", updatedQR.getAccountNo());
-        Assertions.assertEquals("new-qr-data", updatedQR.getQrData());
+        Assertions.assertEquals("Old Bank", updatedQR.getBank());
+        Assertions.assertEquals("1111111112", updatedQR.getAccountNo());
+        Assertions.assertEquals("old-qr-data", updatedQR.getQrData());
         Assertions.assertEquals("updated note", updatedQR.getNote());
-        Assertions.assertNotNull(updatedQR.getCreatedAt());
-        Assertions.assertNotNull(updatedQR.getUpdatedAt());
     }
 
     @Test
     void updateQRById_whenQRNotFound_shouldReturn404() throws Exception {
         UpdateQRRequest request = new UpdateQRRequest(
                 "Le Vo",
-                "Vietcombank",
-                "123456789",
-                "qr-data",
                 "note"
         );
 
@@ -97,9 +89,6 @@ class IntegrationTest {
     void updateQRById_whenIdIsNegative_shouldReturn400() throws Exception {
         UpdateQRRequest request = new UpdateQRRequest(
                 "Le Vo",
-                "Vietcombank",
-                "123456789",
-                "qr-data",
                 "note"
         );
 
@@ -115,16 +104,13 @@ class IntegrationTest {
         QR savedQR = repo.save(QR.builder()
                 .name("Old Name")
                 .bank("Old Bank")
-                .accountNo("111111111")
+                .accountNo("1111111113")
                 .qrData("old-qr-data")
                 .note("old note")
                 .build());
 
         UpdateQRRequest request = new UpdateQRRequest(
                 "",
-                "Vietcombank",
-                "123456789",
-                "qr-data",
                 "note"
         );
 
@@ -137,42 +123,9 @@ class IntegrationTest {
         QR unchangedQR = repo.findById(savedQR.getId()).orElseThrow();
         Assertions.assertEquals("Old Name", unchangedQR.getName());
         Assertions.assertEquals("Old Bank", unchangedQR.getBank());
-        Assertions.assertEquals("111111111", unchangedQR.getAccountNo());
+        Assertions.assertEquals("1111111113", unchangedQR.getAccountNo());
         Assertions.assertEquals("old-qr-data", unchangedQR.getQrData());
         Assertions.assertEquals("old note", unchangedQR.getNote());
     }
 
-    @Test
-    void updateQRById_whenMultipleFieldsAreBlank_shouldReturn400() throws Exception {
-        QR savedQR = repo.save(QR.builder()
-                .name("Old Name")
-                .bank("Old Bank")
-                .accountNo("111111111")
-                .qrData("old-qr-data")
-                .note("old note")
-                .build());
-
-        UpdateQRRequest request = new UpdateQRRequest(
-                "",
-                "",
-                "",
-                "qr-data",
-                "note"
-        );
-
-        mockMvc.perform(put("/api/v1/qr/{id}", savedQR.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.name").value("Name is required"))
-                .andExpect(jsonPath("$.bank").value("Bank is required"))
-                .andExpect(jsonPath("$.accountNo").value("Account number is required"));
-
-        QR unchangedQR = repo.findById(savedQR.getId()).orElseThrow();
-        Assertions.assertEquals("Old Name", unchangedQR.getName());
-        Assertions.assertEquals("Old Bank", unchangedQR.getBank());
-        Assertions.assertEquals("111111111", unchangedQR.getAccountNo());
-        Assertions.assertEquals("old-qr-data", unchangedQR.getQrData());
-        Assertions.assertEquals("old note", unchangedQR.getNote());
-    }
 }

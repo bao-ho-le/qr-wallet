@@ -71,9 +71,6 @@ public class QRService {
                         new QRNotFoundException("QR not found"));
 
         qr.setName(request.name());
-        qr.setBank(request.bank());
-        qr.setAccountNo(request.accountNo());
-        qr.setQrData(request.qrData());
         qr.setNote(request.note());
 
 

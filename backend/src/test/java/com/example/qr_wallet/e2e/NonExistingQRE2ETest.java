@@ -43,9 +43,6 @@ class NonExistingQRE2ETest {
 
         UpdateQRRequest request = new UpdateQRRequest(
                 "Updated Name",
-                "Updated Bank",
-                "222222222",
-                "updated-qr-data",
                 "updated note"
         );
 

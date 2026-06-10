@@ -7,14 +7,6 @@ public record UpdateQRRequest(
         @NotBlank(message = "Name is required")
         String name,
 
-        @NotBlank(message = "Bank is required")
-        String bank,
-
-        @NotBlank(message = "Account number is required")
-        String accountNo,
-
-        String qrData,
-
         String note
 ) {
 }
