@@ -5,6 +5,7 @@ import com.example.qr_wallet.qr.dto.request.UpdateQRRequest;
 import com.example.qr_wallet.qr.dto.response.QRDetailRes;
 import com.example.qr_wallet.qr.dto.response.QRScanRes;
 import com.example.qr_wallet.qr.exception.QRAlreadyExistsException;
+import com.example.qr_wallet.qr.exception.QRConflictException;
 import com.example.qr_wallet.qr.exception.QRNotFoundException;
 import com.example.qr_wallet.qr.util.FileValidationUtil;
 import com.example.qr_wallet.qr.util.QRDecoderUtil;
@@ -61,14 +62,7 @@ public class QRService {
 
     public QRDetailRes updateQRById(Long id, UpdateQRRequest request){
 
-        if(id == null || id <= 0){
-            throw new IllegalArgumentException("Invalid QR id");
-        }
-
-
-        QR qr = repo.findById(id)
-                .orElseThrow(() ->
-                        new QRNotFoundException("QR not found"));
+        QR qr = validateAndGetQR(id, request);
 
         qr.setName(request.name());
         qr.setNote(request.note());
@@ -165,5 +159,20 @@ public class QRService {
                 savedQR.getCreatedAt(),
                 savedQR.getUpdatedAt()
         );
+    }
+
+
+    private QR validateAndGetQR(Long id, UpdateQRRequest request){
+        if(id == null || id <= 0)
+            throw new IllegalArgumentException("Invalid QR id");
+
+
+        QR qr = repo.findById(id)
+                .orElseThrow(() -> new QRNotFoundException("QR not found"));
+
+        if(request.name().isEmpty())
+            throw new QRConflictException("Name is required!");
+
+        return qr;
     }
 }

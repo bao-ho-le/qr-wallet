@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest(QRController.class)
 @Import(GlobalExceptionHandler.class)
-public class CotrollerTest {
+public class ControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -64,11 +65,11 @@ class IntegrationTest {
 
         QR updatedQR = repo.findById(savedQR.getId()).orElseThrow();
 
-        Assertions.assertEquals("Le Vo", updatedQR.getName());
-        Assertions.assertEquals("Old Bank", updatedQR.getBank());
-        Assertions.assertEquals("1111111112", updatedQR.getAccountNo());
-        Assertions.assertEquals("old-qr-data", updatedQR.getQrData());
-        Assertions.assertEquals("updated note", updatedQR.getNote());
+        assertEquals("Le Vo", updatedQR.getName());
+        assertEquals("Old Bank", updatedQR.getBank());
+        assertEquals("1111111112", updatedQR.getAccountNo());
+        assertEquals("old-qr-data", updatedQR.getQrData());
+        assertEquals("updated note", updatedQR.getNote());
     }
 
     @Test
@@ -121,11 +122,12 @@ class IntegrationTest {
                 .andExpect(jsonPath("$.name").value("Name is required"));
 
         QR unchangedQR = repo.findById(savedQR.getId()).orElseThrow();
-        Assertions.assertEquals("Old Name", unchangedQR.getName());
-        Assertions.assertEquals("Old Bank", unchangedQR.getBank());
-        Assertions.assertEquals("1111111113", unchangedQR.getAccountNo());
-        Assertions.assertEquals("old-qr-data", unchangedQR.getQrData());
-        Assertions.assertEquals("old note", unchangedQR.getNote());
+
+        assertEquals("Old Name", unchangedQR.getName());
+        assertEquals("Old Bank", unchangedQR.getBank());
+        assertEquals("1111111113", unchangedQR.getAccountNo());
+        assertEquals("old-qr-data", unchangedQR.getQrData());
+        assertEquals("old note", unchangedQR.getNote());
     }
 
 }

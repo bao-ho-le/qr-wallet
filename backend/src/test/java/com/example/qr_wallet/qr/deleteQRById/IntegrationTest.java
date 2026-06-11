@@ -39,8 +39,7 @@ class IntegrationTest {
                 .note("note")
                 .build());
 
-        mockMvc.perform(delete("/api/v1/qr/{id}", savedQR.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/api/v1/qr/{id}", savedQR.getId()))
                 .andExpect(status().isOk())
                 .andExpect(content().string("QR deleted successfully"));
 
@@ -49,16 +48,14 @@ class IntegrationTest {
 
     @Test
     void deleteQRById_whenQRNotFound_shouldReturn404() throws Exception {
-        mockMvc.perform(delete("/api/v1/qr/{id}", 999L)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/api/v1/qr/{id}", 999L))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("QR not found"));
     }
 
     @Test
     void deleteQRById_whenIdIsInvalid_shouldReturn400() throws Exception {
-        mockMvc.perform(delete("/api/v1/qr/{id}", -1L)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/api/v1/qr/{id}", -1L))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Invalid QR id"));
     }

@@ -5,6 +5,7 @@ import com.example.qr_wallet.qr.QRRepo;
 import com.example.qr_wallet.qr.QRService;
 import com.example.qr_wallet.qr.dto.request.UpdateQRRequest;
 import com.example.qr_wallet.qr.dto.response.QRDetailRes;
+import com.example.qr_wallet.qr.exception.QRConflictException;
 import com.example.qr_wallet.qr.exception.QRNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -98,6 +99,32 @@ public class ServiceTest {
         assertEquals("new note", result.note());
 
         verify(repo).save(qr);
+    }
+
+    @Test
+    void updateQRById_whenNameIsBlank_shouldThrowException(){
+
+        QR qr = QR.builder()
+                .id(1L)
+                .name("Old Name")
+                .bank("VCB")
+                .accountNo("1112")
+                .build();
+
+        UpdateQRRequest request = new UpdateQRRequest("", "new note");
+
+        when(repo.findById(1L))
+                .thenReturn(Optional.of(qr));
+
+
+        QRConflictException exception = assertThrows(
+                        QRConflictException.class,
+                        () -> service.updateQRById(1L, request));
+
+        assertEquals("Name is required!", exception.getMessage());
+
+        verify(repo, never()).save(any());
+
     }
 
 }

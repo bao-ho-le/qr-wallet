@@ -39,8 +39,7 @@ class IntegrationTest {
                 .note("personal note")
                 .build());
 
-        mockMvc.perform(get("/api/v1/qr/{id}", savedQR.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/qr/{id}", savedQR.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedQR.getId()))
                 .andExpect(jsonPath("$.name").value("Le Vo"))
@@ -54,16 +53,14 @@ class IntegrationTest {
 
     @Test
     void getQRById_whenQRNotFound_shouldReturn404() throws Exception {
-        mockMvc.perform(get("/api/v1/qr/{id}", 999L)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/qr/{id}", 999L))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("QR not found"));
     }
 
     @Test
     void getQRById_whenIdIsInvalid_shouldReturn400() throws Exception {
-        mockMvc.perform(get("/api/v1/qr/{id}", -1L)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/qr/{id}", -1L))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Invalid QR id"));
     }

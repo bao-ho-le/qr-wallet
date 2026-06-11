@@ -12,6 +12,7 @@ public interface QRRepo extends JpaRepository<QR, Long> {
 	 * Find all QR entities ordered by updatedAt descending (newest first).
 	 */
 	List<QR> findAllByOrderByUpdatedAtDesc();
+
 	boolean existsByBankAndAccountNo(
 			String bank,
 			String accountNo
