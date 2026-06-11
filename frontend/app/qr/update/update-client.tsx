@@ -142,6 +142,7 @@ export default function UpdateQRClient() {
             <label htmlFor="name">Name</label>
             <input
               id="name"
+              data-testid="name-input"
               value={form.name}
               onChange={(event) =>
                 setForm((current) => ({ ...current, name: event.target.value }))
@@ -157,6 +158,7 @@ export default function UpdateQRClient() {
             <label htmlFor="note">Note</label>
             <textarea
               id="note"
+              data-testid="note-input"
               value={form.note}
               onChange={(event) =>
                 setForm((current) => ({ ...current, note: event.target.value }))
@@ -171,6 +173,7 @@ export default function UpdateQRClient() {
 
         <div className="actions">
           <button
+            data-testid="update-btn"
             onClick={() => void handleUpdate()}
             disabled={!qrId.trim() || loading}
             className="button-base "

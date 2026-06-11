@@ -2,21 +2,24 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { QRDetailCard } from "@/components/qr-detail";
 import {
   type QRDetail,
   readApiError,
   readJsonResponse,
+  requestDeleteQr,
   requestQrDetail,
 } from "@/lib/qr-api";
 
 export default function GetQRClient() {
   const [qrId, setQrId] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<QRDetail | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   async function handleFetch(targetId: string) {
@@ -62,8 +65,44 @@ export default function GetQRClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
+  async function handleDelete() {
+    const id = qrId.trim();
+
+    if (!id) {
+      setError("Missing QR ID in URL");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete QR record ${id}? This cannot be undone.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeleting(true);
+    setError("");
+
+    try {
+      const response = await requestDeleteQr(id);
+
+      if (!response.ok) {
+        const apiError = await readApiError(response);
+        setError(apiError.message);
+        return;
+      }
+
+      router.replace("/qr/list?deleted=1");
+    } catch {
+      setError("Network error");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
-    <main className="feature-shell">
+    <main className="feature-shell" data-testid="qr-detail">
       <div className="feature-topbar">
         <Link className="back-link" href="/">
           Back to home
@@ -95,12 +134,23 @@ export default function GetQRClient() {
           <>
             <QRDetailCard detail={result} />
             <div className="actions detail-actions">
-              <Link className="button-base secondary-link" href={`/qr/update?id=${result.id}`} prefetch={false}>
+              <Link
+                className="button-base secondary-link"
+                href={`/qr/update?id=${result.id}`}
+                prefetch={false}
+                data-testid="edit-btn"
+              >
                 Edit
               </Link>
-              <Link className="button-base secondary-link danger-link" href={`/qr/delete?id=${result.id}`} prefetch={false}>
-                Delete
-              </Link>
+              <button
+                type="button"
+                className="button-base secondary-link danger-link"
+                onClick={() => void handleDelete()}
+                disabled={deleting}
+                data-testid="delete-btn"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
             </div>
           </>
         ) : null}

@@ -13,7 +13,7 @@ export function QRDetailCard({
       <div className="detail-list">
         <div className="detail-row">
           <span className="detail-label">Name</span>
-          <span>{detail.name}</span>
+          <span data-testid="qr-name">{detail.name}</span>
         </div>
         <div className="detail-row">
           <span className="detail-label">Bank</span>
@@ -38,7 +38,7 @@ export function QRDetailCard({
         ) : null}
         <div className="detail-row">
           <span className="detail-label">Note</span>
-          <span>{detail.note ?? "-"}</span>
+          <span data-testid="qr-note">{detail.note ?? "-"}</span>
         </div>
         <div className="detail-row">
           <span className="detail-label">Created At</span>

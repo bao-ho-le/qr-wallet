@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   type QRListItem,
   readApiError,
@@ -13,6 +14,9 @@ export default function QRListPage() {
   const [items, setItems] = useState<QRListItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   async function loadList() {
     setLoading(true);
@@ -40,6 +44,15 @@ export default function QRListPage() {
     void loadList();
   }, []);
 
+  useEffect(() => {
+    const deleted = searchParams.get("deleted");
+
+    if (deleted === "1") {
+      setSuccess("QR deleted successfully");
+      router.replace("/qr/list");
+    }
+  }, [router, searchParams]);
+
   return (
     <main className="feature-shell">
       <div className="feature-topbar">
@@ -47,12 +60,19 @@ export default function QRListPage() {
           Back to home
         </Link>
         <h1>QR List</h1>
-        <p>Browse saved QR records and open any record for detail, edit, or delete.</p>
+        <p>
+          Browse saved QR records and open any record for detail, edit, or
+          delete.
+        </p>
       </div>
 
       <section className="feature-card stack">
         <div className="actions">
-          <button onClick={loadList} disabled={loading} className="button-base ">
+          <button
+            onClick={loadList}
+            disabled={loading}
+            className="button-base "
+          >
             {loading ? "Refreshing..." : "Refresh"}
           </button>
           <Link className="button-base secondary-link" href="/qr/upload">
@@ -61,6 +81,7 @@ export default function QRListPage() {
         </div>
 
         {error ? <div className="error">{error}</div> : null}
+        {success ? <div className="success">{success}</div> : null}
 
         {!error && !loading && items.length === 0 ? (
           <div className="result">No QR records yet.</div>
@@ -81,9 +102,15 @@ export default function QRListPage() {
               </div>
 
               <div className="record-footer">
-                <span className="meta">Updated at: {item.updatedAt || "-"}</span>
+                <span className="meta">
+                  Updated at: {item.updatedAt || "-"}
+                </span>
                 <div className="actions">
-                  <Link className="button-base secondary-link" href={`/qr/get?id=${item.id}`} prefetch={false}>
+                  <Link
+                    className="button-base secondary-link"
+                    href={`/qr/get?id=${item.id}`}
+                    prefetch={false}
+                  >
                     Details
                   </Link>
                 </div>

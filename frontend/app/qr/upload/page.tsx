@@ -66,7 +66,9 @@ export default function UploadQRPage() {
 
       setScanResult(data);
       setForm({
-        name: data.requireAccountName ? "" : data.accountName || data.bankName || "",
+        name: data.requireAccountName
+          ? ""
+          : data.accountName || data.bankName || "",
         note: "",
       });
     } catch {
@@ -158,16 +160,24 @@ export default function UploadQRPage() {
                 setFieldErrors({});
               }}
             />
-            {file ? <div className="meta">Selected file: {file.name}</div> : null}
-            {fieldErrors.file ? <div className="field-error">{fieldErrors.file}</div> : null}
+            {file ? (
+              <div className="meta">Selected file: {file.name}</div>
+            ) : null}
+            {fieldErrors.file ? (
+              <div className="field-error">{fieldErrors.file}</div>
+            ) : null}
           </div>
         </div>
 
         <div className="actions">
-          <button onClick={handleScan} disabled={!file || loadingScan}>
+          <button
+            className="button-base"
+            onClick={handleScan}
+            disabled={!file || loadingScan}
+          >
             {loadingScan ? "Scanning..." : "Scan QR"}
           </button>
-          <Link className="secondary-link" href="/qr/list">
+          <Link className="button-base secondary-link" href="/qr/list">
             Go to list
           </Link>
         </div>
@@ -248,14 +258,20 @@ export default function UploadQRPage() {
             </div>
 
             <div className="actions">
-              <button onClick={handleCreate} disabled={loadingCreate}>
+              <button
+                className="button-base"
+                onClick={handleCreate}
+                disabled={loadingCreate}
+              >
                 {loadingCreate ? "Saving..." : "Save QR"}
               </button>
             </div>
           </div>
         ) : null}
 
-        {createdDetail ? <QRDetailCard detail={createdDetail} showQrData={false} /> : null}
+        {createdDetail ? (
+          <QRDetailCard detail={createdDetail} showQrData={false} />
+        ) : null}
       </section>
     </main>
   );
