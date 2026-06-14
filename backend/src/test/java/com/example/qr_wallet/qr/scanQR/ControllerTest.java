@@ -4,98 +4,161 @@ import com.example.qr_wallet.qr.QRController;
 import com.example.qr_wallet.qr.QRService;
 import com.example.qr_wallet.qr.dto.response.QRScanRes;
 import com.example.qr_wallet.qr.exception.QRScanException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@DisplayName("QRController Scan Tests")
-public class ControllerTest {
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(QRController.class)
+class ControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private QRService qrService;
+    private QRService service;
 
     @Test
-    @DisplayName("Should return scanned QR data successfully")
-    public void testUploadAndScanQR_Success() throws Exception {
-        MockMultipartFile mockFile = new MockMultipartFile(
+    @DisplayName("TC-CTRL-01 Upload QR Success")
+    void uploadAndScanQR_whenValidQRCodeImage_shouldReturn200AndResponse()
+            throws Exception {
+
+        MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "qr.png",
                 MediaType.IMAGE_PNG_VALUE,
-                "fake png data".getBytes()
+                "fake-image-content".getBytes()
         );
 
-        QRScanRes expectedResponse = new QRScanRes("00020101021138540010A00000072701240006970422011008194048330208QRIBFTTA53037045802VN63045fef","970422","MB Bank","697042201100819404833","accountName",0L,"",false);
-        when(qrService.uploadAndScanQR(mockFile)).thenReturn(expectedResponse);
+        QRScanRes response = new QRScanRes(
+                "RAW_QR_DATA",
+                "970436",
+                "Vietcombank",
+                "123456789",
+                "Nguyen Van A",
+                100000L,
+                "Thanh toan",
+                false
+        );
+
+        when(service.uploadAndScanQR(any()))
+                .thenReturn(response);
 
         mockMvc.perform(
-                multipart("/api/v1/qr/scan")
-                        .file(mockFile)
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
-        )
+                        multipart("/api/v1/qr/scan")
+                                .file(file)
+                )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.rawData").value("00020101021138540010A00000072701240006970422011008194048330208QRIBFTTA53037045802VN63045fef"));
+                .andExpect(jsonPath("$.rawData")
+                        .value("RAW_QR_DATA"))
+                .andExpect(jsonPath("$.bankCode")
+                        .value("970436"))
+                .andExpect(jsonPath("$.bankName")
+                        .value("Vietcombank"))
+                .andExpect(jsonPath("$.accountNumber")
+                        .value("123456789"))
+                .andExpect(jsonPath("$.accountName")
+                        .value("Nguyen Van A"))
+                .andExpect(jsonPath("$.amount")
+                        .value(100000))
+                .andExpect(jsonPath("$.description")
+                        .value("Thanh toan"))
+                .andExpect(jsonPath("$.requireAccountName")
+                        .value(false));
 
-        verify(qrService, times(1)).uploadAndScanQR(any());
+        verify(service, times(1))
+                .uploadAndScanQR(any());
     }
 
     @Test
-    @DisplayName("Should return 400 when file validation fails")
-    public void testUploadAndScanQR_ValidationFailed() throws Exception {
-        MockMultipartFile invalidFile = new MockMultipartFile(
-                "file",
-                "invalid.txt",
-                MediaType.TEXT_PLAIN_VALUE,
-                "not an image".getBytes()
-        );
-
-        when(qrService.uploadAndScanQR(invalidFile))
-                .thenThrow(new QRScanException("Invalid file format"));
+    @DisplayName("TC-CTRL-02 Missing File")
+    void uploadAndScanQR_whenFileMissing_shouldReturn400()
+            throws Exception {
 
         mockMvc.perform(
-                multipart("/api/v1/qr/scan")
-                        .file(invalidFile)
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
-        )
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid file format"));
+                        multipart("/api/v1/qr/scan")
+                )
+                .andExpect(status().isBadRequest());
+
+        verify(service, never())
+                .uploadAndScanQR(any());
     }
 
     @Test
-    @DisplayName("Should return 400 when QR code cannot be decoded")
-    public void testUploadAndScanQR_DecodingFailed() throws Exception {
-        MockMultipartFile mockFile = new MockMultipartFile(
+    @DisplayName("TC-CTRL-03 requireAccountName = true")
+    void uploadAndScanQR_whenAccountNameMissing_shouldReturnRequireAccountNameTrue()
+            throws Exception {
+
+        MockMultipartFile file = new MockMultipartFile(
                 "file",
-                "no_qr.png",
+                "qr.png",
                 MediaType.IMAGE_PNG_VALUE,
-                "image without qr code".getBytes()
+                "fake-image-content".getBytes()
         );
 
-        when(qrService.uploadAndScanQR(mockFile))
-                .thenThrow(new QRScanException("No QR code found in the image"));
+        QRScanRes response = new QRScanRes(
+                "RAW_QR_DATA",
+                "970436",
+                "Vietcombank",
+                "123456789",
+                null,
+                100000L,
+                "Thanh toan",
+                true
+        );
+
+        when(service.uploadAndScanQR(any()))
+                .thenReturn(response);
 
         mockMvc.perform(
-                multipart("/api/v1/qr/scan")
-                        .file(mockFile)
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
-        )
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("No QR code found in the image"));
+                        multipart("/api/v1/qr/scan")
+                                .file(file)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.requireAccountName")
+                        .value(true));
+
+        verify(service, times(1))
+                .uploadAndScanQR(any());
+    }
+
+    @Test
+    @DisplayName("TC-CTRL-04 Service Throws QRScanException")
+    void uploadAndScanQR_whenServiceThrowsQRScanException_shouldReturn400()
+            throws Exception {
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "qr.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "fake-content".getBytes()
+        );
+
+        when(service.uploadAndScanQR(any()))
+                .thenThrow(new QRScanException("Validation Error"));
+
+        mockMvc.perform(
+                        multipart("/api/v1/qr/scan")
+                                .file(file)
+                )
+                .andExpect(status().isBadRequest());
+
+
+        verify(service, times(1))
+                .uploadAndScanQR(any());
     }
 }
-

@@ -41,6 +41,7 @@ public final class FileValidationUtil {
         }
 
         validateImageContent(file);
+
     }
 
     private static boolean hasValidExtension(String fileName) {

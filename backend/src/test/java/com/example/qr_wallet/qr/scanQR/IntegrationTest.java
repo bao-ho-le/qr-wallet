@@ -1,95 +1,163 @@
 package com.example.qr_wallet.qr.scanQR;
 
-import com.example.qr_wallet.qr.QRService;
-import com.example.qr_wallet.qr.exception.QRScanException;
-import com.example.qr_wallet.qr.util.FileValidationUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@DisplayName("QRService Integration Tests")
-public class IntegrationTest {
+@AutoConfigureMockMvc
+class IntegrationTest {
 
     @Autowired
-    private QRService qrService;
+    private MockMvc mockMvc;
 
     @Test
-    @DisplayName("Should validate file size correctly")
-    public void testFileValidation_SizeLimit() {
-        byte[] largeFileContent = new byte[11 * 1024 * 1024]; // 11MB
+    @DisplayName("TC-INT-01 Scan QR Success")
+    void uploadAndScanQR_whenValidQR_shouldReturn200() throws Exception {
 
-        MockMultipartFile largeFile = new MockMultipartFile(
-                "file",
-                "large.png",
-                MediaType.IMAGE_PNG_VALUE,
-                largeFileContent
-        );
+        ClassPathResource resource =
+                new ClassPathResource("valid-qr.jpg");
 
-        QRScanException exception = assertThrows(QRScanException.class, () -> {
-            FileValidationUtil.validateQRImageFile(largeFile);
-        });
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file",
+                        "valid-qr.jpg",
+                        "image/jpg",
+                        resource.getInputStream()
+                );
 
-        assertTrue(exception.getMessage().contains("exceeds maximum limit"));
+        mockMvc.perform(
+                        multipart("/api/v1/qr/scan")
+                                .file(file)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rawData")
+                        .value("00020101021138540010A00000072701240006970436011010275404130208QRIBFTTA53037045802VN6304E472"))
+                .andExpect(jsonPath("$.bankCode")
+                        .value("970436"))
+                .andExpect(jsonPath("$.bankName")
+                        .value("Vietcombank"))
+                .andExpect(jsonPath("$.accountNumber")
+                        .value("1027540413"))
+                .andExpect(jsonPath("$.accountName")
+                        .value(""))
+                .andExpect(jsonPath("$.amount")
+                        .value(0))
+                .andExpect(jsonPath("$.description")
+                        .value(""))
+                .andExpect(jsonPath("$.requireAccountName")
+                        .value(true));
     }
 
     @Test
-    @DisplayName("Should reject non-image files")
-    public void testFileValidation_InvalidMimeType() {
-        MockMultipartFile pdfFile = new MockMultipartFile(
-                "file",
-                "document.pdf",
-                "application/pdf",
-                "%PDF-1.4".getBytes()
-        );
+    @DisplayName("TC-INT-02 Empty File")
+    void uploadAndScanQR_whenFileEmpty_shouldReturn400()
+            throws Exception {
 
-        QRScanException exception = assertThrows(QRScanException.class, () -> {
-            FileValidationUtil.validateQRImageFile(pdfFile);
-        });
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file",
+                        "",
+                        "image/png",
+                        new byte[0]
+                );
 
-        assertTrue(exception.getMessage().contains("Invalid file"));
+        mockMvc.perform(
+                        multipart("/api/v1/qr/scan")
+                                .file(file)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(content()
+                        .string("File is required and cannot be empty"));
     }
 
     @Test
-    @DisplayName("Should accept valid PNG files")
-    public void testFileValidation_ValidPNG() {
-        byte[] pngBytes = {
-                (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
-        };
+    @DisplayName("TC-INT-03 Invalid Extension")
+    void uploadAndScanQR_whenExtensionInvalid_shouldReturn400()
+            throws Exception {
 
-        MockMultipartFile validPNG = new MockMultipartFile(
-                "file",
-                "image.png",
-                MediaType.IMAGE_PNG_VALUE,
-                pngBytes
-        );
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file",
+                        "test.txt",
+                        "text/plain",
+                        "hello".getBytes()
+                );
 
-        // Should not throw exception
-        FileValidationUtil.validateQRImageFile(validPNG);
+        mockMvc.perform(
+                        multipart("/api/v1/qr/scan")
+                                .file(file)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(content()
+                        .string("Invalid file format. Only PNG, JPG, JPEG are allowed"));
     }
 
     @Test
-    @DisplayName("Should accept valid JPEG files")
-    public void testFileValidation_ValidJPEG() {
-        byte[] jpegBytes = {
-                (byte) 0xFF, (byte) 0xD8, (byte) 0xFF
-        };
+    @DisplayName("TC-INT-04 Invalid Image Content")
+    void uploadAndScanQR_whenImageInvalid_shouldReturn400()
+            throws Exception {
 
-        MockMultipartFile validJPEG = new MockMultipartFile(
-                "file",
-                "image.jpg",
-                MediaType.IMAGE_JPEG_VALUE,
-                jpegBytes
-        );
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file",
+                        "fake.png",
+                        "image/png",
+                        "not-an-image".getBytes()
+                );
 
-        // Should not throw exception
-        FileValidationUtil.validateQRImageFile(validJPEG);
+        mockMvc.perform(
+                        multipart("/api/v1/qr/scan")
+                                .file(file)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(content()
+                        .string("Uploaded file is not a valid image"));
+    }
+
+    @Test
+    @DisplayName("TC-INT-05 No QR Found")
+    void uploadAndScanQR_whenNoQR_shouldReturn400()
+            throws Exception {
+
+        BufferedImage image =
+                new BufferedImage(
+                        200,
+                        200,
+                        BufferedImage.TYPE_INT_RGB
+                );
+
+        ByteArrayOutputStream baos =
+                new ByteArrayOutputStream();
+
+        ImageIO.write(image, "png", baos);
+
+        MockMultipartFile file =
+                new MockMultipartFile(
+                        "file",
+                        "blank.png",
+                        "image/png",
+                        baos.toByteArray()
+                );
+
+        mockMvc.perform(
+                        multipart("/api/v1/qr/scan")
+                                .file(file)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(content()
+                        .string("No QR code found in the image"));
     }
 }
-
