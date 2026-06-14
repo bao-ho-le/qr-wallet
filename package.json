@@ -1,0 +1,24 @@
+{
+  "name": "qr-wallet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bao-ho-le/qr-wallet.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bao-ho-le/qr-wallet/issues"
+  },
+  "homepage": "https://github.com/bao-ho-le/qr-wallet#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.3",
+    "playwright": "^1.60.0"
+  }
+}
