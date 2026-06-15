@@ -25,6 +25,9 @@ export type QRScanResponse = {
 
 export type CreateQRRequest = {
   name: string;
+  bank: string;
+  accountNo: string;
+  qrData: string;
   note: string;
 };
 
